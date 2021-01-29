@@ -42,29 +42,34 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-    Mux16(a=x,     b=false,   sel=zx, out=zxOut);
-    Not16(in=zxOut,                   out=zxNxOut);
-    Mux16(a=zxOut, b=zxNxOut, sel=nx, out=processedX);
+    Mux16(a=x,  b=false, sel=zx, out=x1);
+    Not16(in=x1,                 out=x2);
+    Mux16(a=x1, b=x2,    sel=nx, out=x3);
 
-    Mux16(a=y,     b=false,   sel=zy, out=zyOut);
-    Not16(in=zyOut,                   out=zyNyOut);
-    Mux16(a=zyOut, b=zyNyOut, sel=ny, out=processedY);
+    Mux16(a=y,  b=false, sel=zy, out=y1);
+    Not16(in=y1,                 out=y2);
+    Mux16(a=y1, b=y2,    sel=ny, out=y3);
 
-    And16(a=processedX, b=processedY, out=and);
-    Add16(a=processedX, b=processedY, out=sum);
+    And16(a=x3, b=y3, out=and);
+    Add16(a=x3, b=y3, out=sum);
 
-    Mux16(a=and, b=sum,          sel=f,  out=result);
+    Mux16(a=and,    b=sum,       sel=f,  out=result);
     Not16(in=result,                     out=notResult);
     Mux16(a=result, b=notResult, sel=no, out=output);
 
-    And16(a=output, b=true, out[15]=ng); // set single-bit `ng` to be the most significant bit of this output
+    // set flags:
 
-    And16(a=true, b=output, out[0..7]=lastByte);
-    And16(a=true, b=output, out[8..15]=firstByte);
-    Or8Way(in=lastByte,   out=lastByteZr);
-    Or8Way(in=firstByte,  out=firstByteZr);
-    Or(a=lastByteZr, b=firstByteZr, out=notZero);
-    Not(in=notZero, out=zr);
+    And16(a=true, b=output, out[15]=ng);     // set single-bit `ng` flag to the most significant bit of this out
 
+    And16(a=true, b=output, out[0..7]=lsb);  // split the output in two bytes
+    And16(a=true, b=output, out[8..15]=msb);
+
+    Or8Way(in=lsb,  out=lsbZero);            // to check if their bits are all zeros
+    Or8Way(in=msb,  out=msbZero);
+
+    Or(a=lsbZero, b=msbZero, out=notZero);
+    Not(in=notZero,          out=zr);
+
+    // out=output
     And16(a=true, b=output, out=out);
 }
