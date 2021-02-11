@@ -11,12 +11,14 @@
 
 // Put your code here.
 
-  // if R0 & R1 is 0, write 0 to R2 and end program
-  // since the product with one 0 is always 0: 
+  // if R0 or R1 is 0, write 0 to R2 and terminate
   @R0
   D = M
+  @ZERO
+  D; JEQ
+
   @R1
-  D = D&M
+  D = M
   @ZERO
   D; JEQ
 
