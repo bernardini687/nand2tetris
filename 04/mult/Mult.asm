@@ -10,3 +10,46 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+
+  // if R0 & R1 is 0, write 0 to R2 and end program
+  // since the product with one 0 is always 0: 
+  @R0
+  D = M
+  @R1
+  D = D&M
+  @ZERO
+  D; JEQ
+
+  // else, compute the product by adding R0 to R0 for R1 times:
+  @i
+  M = 1
+  @R2
+  M = 0
+
+(LOOP)
+  @i
+  D = M
+  @R1
+  D = D-M // D = i - R1
+  @END
+  D; JGT  // if (i - R1) > 0 goto END
+  
+  @R0
+  D = M
+  @R2
+  M = D+M // R2 += R0
+
+  @i
+  M = M+1
+  @LOOP
+  0; JMP  // goto LOOP
+
+(END)
+  @END
+  0; JMP  // infinite loop
+
+(ZERO)
+  @R2
+  M = 0
+  @END
+  0; JMP  // goto END
