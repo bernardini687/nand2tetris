@@ -11,4 +11,23 @@
 // "white" in every pixel;
 // the screen should remain fully clear as long as no key is pressed.
 
-// Put your code here.
+(READ_KBD)
+  @KBD
+  D = M
+
+  @FILL
+  D; JNE
+
+(RESET)
+  @SCREEN
+  M = 0
+
+  @READ_KBD
+  0; JMP
+
+(FILL)
+  @SCREEN
+  M = D
+ 
+  @READ_KBD
+  0; JMP
