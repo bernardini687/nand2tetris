@@ -27,5 +27,23 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+
+   /**
+    * we'll use the MSB of the 15 bits `address` to set the `load`'s destination:
+    * 0__ ->     0-16383 -> RAM
+    * 1__ -> 16384-24575 -> SCREEN
+    */
+    DMux(in=load, sel=address[14], a=loadRAM, b=loadScreen);
+
+    RAM16K(in=in, load=loadRAM,    address=address[0..13], out=outRAM);    /* RAM16K's `address` is only 14 bits */
+    Screen(in=in, load=loadScreen, address=address[0..12], out=outScreen); /* Screen's `address` is only 13 bits */
+    Keyboard(out=outKBD);
+
+   /**
+    * we'll use bits 14-13 (first 2 MSBs of the 15 bits `address`) to set the `out`'s source:
+    * 00_, 01_ ->     0-16383 -> RAM
+    * 10_      -> 16384-24575 -> SCREEN
+    * 11_      -> 24576       -> KBD
+    */
+    Mux4Way16(a=outRAM, b=outRAM, c=outScreen, d=outKBD, sel=address[13..14], out=out);
 }
