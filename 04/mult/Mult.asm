@@ -1,57 +1,38 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/04/Mult.asm
-
-// Multiplies R0 and R1 and stores the result in R2.
-// (R0, R1, R2 refer to RAM[0], RAM[1], and RAM[2], respectively.)
-//
-// This program only needs to handle arguments that satisfy
-// R0 >= 0, R1 >= 0, and R0*R1 < 32768.
-
-// Put your code here.
-
-  // if R0 or R1 is 0, write 0 to R2 and terminate
   @R0
-  D = M
-  @ZERO
-  D; JEQ
+  D=M
+  @multiplier
+  M=D           // multiplier = RAM[0]
 
   @R1
-  D = M
-  @ZERO
-  D; JEQ
+  D=M
+  @multiplicand // multiplicand = RAM[1]
+  M=D
 
-  // else, compute the product by adding R0 to R0 for R1 times:
-  @i
-  M = 1
-  @R2
-  M = 0
+  @R2           // product
+  M=0           // product = 0
 
-(LOOP)
   @i
-  D = M
-  @R1
-  D = D-M // D = i - R1
+  M=0           // i = 0
+
+(MULTIPLY)
+  @multiplier
+  D=M
+  @i
+  D=D-M
   @END
-  D; JGT  // if (i - R1) > 0 goto END
-  
-  @R0
-  D = M
-  @R2
-  M = D+M // R2 += R0
+  D;JEQ         // continue if (multiplier - i) != 0
+
+  @multiplicand
+  D=M
+  @R2           // product
+  M=D+M         // product += multiplicand
 
   @i
-  M = M+1
-  @LOOP
-  0; JMP  // goto LOOP
+  M=M+1         // i++
+
+  @MULTIPLY
+  0;JMP
 
 (END)
   @END
-  0; JMP  // infinite loop
-
-(ZERO)
-  @R2
-  M = 0
-  @END
-  0; JMP  // goto END
+  0;JMP
